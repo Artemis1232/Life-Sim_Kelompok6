@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Simulator - Web Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary);
+        }
+        
+        h1 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+        
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .panel-title {
+            font-size: 1.4rem;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-title i {
+            color: var(--primary);
+        }
+        
+        .character-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .info-item {
+            background-color: var(--light);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .info-value {
+            font-size: 1.2rem;
+            color: var(--secondary);
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .stat-energy {
+            background-color: var(--warning);
+        }
+        
+        .stat-money {
+            background-color: var(--success);
+        }
+        
+        .stat-knowledge {
+            background-color: var(--primary);
+        }
+        
+        .stat-health {
+            background-color: var(--danger);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            margin: 10px 0;
+        }
+        
+        .menu-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        .menu-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+        }
+        
+        .menu-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .menu-button i {
+            font-size: 1.5rem;
+        }
+        
+        .menu-button:nth-child(2) {
+            background-color: var(--success);
+        }
+        
+        .menu-button:nth-child(3) {
+            background-color: var(--warning);
+        }
+        
+        .menu-button:nth-child(4) {
+            background-color: var(--danger);
+        }
+        
+        .menu-button:nth-child(5) {
+            background-color: var(--secondary);
+        }
+        
+        .menu-button:nth-child(6) {
+            background-color: #9b59b6;
+        }
+        
+        .menu-button:nth-child(7) {
+            background-color: #1abc9c;
+        }
+        
+        .menu-button:nth-child(8) {
+            background-color: #e67e22;
+        }
+        
+        .menu-button:nth-child(9) {
+            background-color: #7f8c8d;
+        }
+        
+        .event-log {
+            grid-column: span 2;
+        }
+        
+        @media (max-width: 900px) {
+            .event-log {
+                grid-column: span 1;
+            }
+            
+            .menu-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .log-content {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .log-entry {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary);
+            background-color: white;
+        }
+        
+        .log-day {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+        
+        .log-event {
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        .log-activities {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: white;
+        }
+        
+        .form-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .form-button:hover {
+            background-color: #2980b9;
+        }
+        
+        .npc-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .npc-item {
+            background-color: var(--light);
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .npc-name {
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        .npc-relationship {
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+        
+        .activity-list {
+            margin-top: 15px;
+        }
+        
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .activity-name {
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .activity-remove {
+            color: var(--danger);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+        
+        .alert-success {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+        
+        .alert-warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+        
+        .day-counter {
+            background-color: var(--secondary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .history-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .history-control-button {
+            background-color: var(--warning);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .history-control-button.delete {
+            background-color: var(--danger);
+        }
+        
+        .history-item {
+            position: relative;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: white;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .history-delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-gamepad"></i> Life Simulator</h1>
+            <p class="subtitle">Simulasi kehidupan sehari-hari dengan berbagai aktivitas dan interaksi</p>
+            <div class="day-counter" id="dayCounter">Hari: 1</div>
+        </header>
+        
+        <div class="game-area">
+            <div class="panel character-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i class="fas fa-user"></i> Profil Karakter</h2>
+                    <div id="characterStatus" class="alert alert-success">Aktif</div>
+                </div>
+                
+                <div id="characterEmpty" class="alert alert-warning">
+                    <i class="fas fa-exclamation-circle"></i> Belum ada karakter. Buat karakter terlebih dahulu.
+                </div>
+                
+                <div id="characterInfo" style="display: none;">
+                    <div class="character-info">
+                        <div class="info-item">
+                            <div class="info-label">Nama</div>
+                            <div class="info-value" id="charName">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Umur</div>
+                            <div class="info-value" id="charAge">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Pekerjaan</div>
+                            <div class="info-value" id="charJob">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Status</div>
+                            <div class="info-value" id="charStatus">-</div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-top: 20px; margin-bottom: 10px; color: var(--secondary);">Statistik</h3>
+                    <div class="stats-container">
+                        <div class="stat stat-energy">
+                            <div>Energi</div>
+                            <div class="stat-value" id="statEnergy">0</div>
+                            <div id="energyBar"></div>
+                        </div>
+                        <div class="stat stat-money">
+                            <div>Uang</div>
+                            <div class="stat-value" id="statMoney">0</div>
+                            <div id="moneyBar"></div>
+                        </div>
+                        <div class="stat stat-knowledge">
+                            <div>Pengetahuan</div>
+                            <div class="stat-value" id="statKnowledge">0</div>
+                            <div id="knowledgeBar"></div>
+                        </div>
+                        <div class="stat stat-health">
+                            <div>Kesehatan</div>
+                            <div class="stat-value" id="statHealth">0</div>
+                            <div id="healthBar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel menu-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i class="fas fa-bars"></i> Menu</h2>
+                </div>
+                
+                <div class="menu-container">
+                    <button class="menu-button" onclick="openModal('createCharacterModal')">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Buat Karakter</span>
+                    </button>
+                    
+                    <button class="menu-button" onclick="showCharacter()">
+                        <i class="fas fa-id-card"></i>
+                        <span>Lihat Profil</span>
+                    </button>
+                    
+                    <button class="menu-button" onclick="openModal('addActivityModal')">
+                        <i class="fas fa-tasks"></i>
+                        <span>Tambah Aktivitas</span>
+                    </button>
+                    
+                    <button class="menu-button" onclick="runOneDay()">
+                        <i class="fas fa-play"></i>
+                        <span>Jalankan Hari Ini</span>
+                    </button>
+                    
+                    <button class="menu-button" onclick="openModal('runNDaysModal')">
+                        <i class="fas fa-forward"></i>
+                        <span>Jalankan N Hari</span>
+                    </button>
+                    
+                    <button class="menu-button" onclick="showHistory()">
+                        <i class="fas fa-history"></i>
+                        <span>Lihat & Hapus Riwayat</span>
+                    </button>
+                    
+                    <button class="menu-button" onclick="resetToday()">
+                        <i class="fas fa-redo"></i>
+                        <span>Reset Hari Ini</span>
+                    </button>
+                    
+                    <button class="menu-button" onclick="openModal('addNPCModal')">
+                        <i class="fas fa-user-friends"></i>
+                        <span>Tambah NPC</span>
+                    </button>
+                    
+                    <button class="menu-button" onclick="viewNPCs()">
+                        <i class="fas fa-users"></i>
+                        <span>Daftar NPC</span>
+                    </button>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h3 style="margin-bottom: 10px; color: var(--secondary);">Aktivitas Hari Ini</h3>
+                    <div id="todaysActivities" class="activity-list">
+                        <div style="text-align: center; color: #999; padding: 20px;">
+                            Belum ada aktivitas untuk hari ini
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel event-log">
+                <div class="log-header">
+                    <h2 class="panel-title"><i class="fas fa-clipboard-list"></i> Log Hari Ini</h2>
+                    <button class="form-button" onclick="clearLog()" style="width: auto; padding: 8px 15px;">Bersihkan Log</button>
+                </div>
+                
+                <div class="log-content" id="eventLog">
+                    <div style="text-align: center; color: #999; padding: 20px;">
+                        Belum ada log aktivitas
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Buat Karakter -->
+        <div class="modal" id="createCharacterModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 style="color: var(--secondary);">Buat Karakter Baru</h2>
+                    <button class="close-modal" onclick="closeModal('createCharacterModal')">&times;</button>
+                </div>
+                
+                <div id="characterError" class="alert alert-danger" style="display: none;"></div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nama Karakter</label>
+                    <input type="text" class="form-input" id="charNameInput" placeholder="Masukkan nama">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Umur</label>
+                    <input type="number" class="form-input" id="charAgeInput" min="1" max="100" value="20">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Pilih Pekerjaan</label>
+                    <select class="form-select" id="charJobSelect">
+                        <option value="Pelajar">Pelajar (6-18 tahun)</option>
+                        <option value="Mahasiswa">Mahasiswa (17-25 tahun)</option>
+                        <option value="Guru">Guru (min. 23 tahun)</option>
+                        <option value="Chef">Chef (min. 18 tahun)</option>
+                        <option value="Pilot">Pilot (min. 22 tahun)</option>
+                        <option value="Dokter">Dokter (min. 25 tahun)</option>
+                        <option value="Polisi">Polisi (min. 18 tahun)</option>
+                    </select>
+                    <small id="jobRequirements" style="color: #666; display: block; margin-top: 5px;"></small>
+                </div>
+                
+                <button class="form-button" onclick="createCharacter()">Buat Karakter</button>
+            </div>
+        </div>
+        
+        <!-- Modal Tambah Aktivitas -->
+        <div class="modal" id="addActivityModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 style="color: var(--secondary);">Tambah Aktivitas</h2>
+                    <button class="close-modal" onclick="closeModal('addActivityModal')">&times;</button>
+                </div>
+                
+                <div id="activityError" class="alert alert-danger" style="display: none;"></div>
+                
+                <div class="form-group">
+                    <label class="form-label">Pilih Aktivitas</label>
+                    <select class="form-select" id="activitySelect">
+                        <!-- Aktivitas akan diisi berdasarkan pekerjaan -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Atau Interaksi dengan NPC</label>
+                    <select class="form-select" id="npcSelect">
+                        <!-- NPC akan diisi dari JavaScript -->
+                    </select>
+                </div>
+                
+                <button class="form-button" onclick="addActivity()">Tambah Aktivitas</button>
+            </div>
+        </div>
+        
+        <!-- Modal Jalankan N Hari -->
+        <div class="modal" id="runNDaysModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 style="color: var(--secondary);">Jalankan Sampai Hari ke-N</h2>
+                    <button class="close-modal" onclick="closeModal('runNDaysModal')">&times;</button>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Jalankan sampai hari ke:</label>
+                    <input type="number" class="form-input" id="targetDayInput" min="1" max="100" value="7">
+                </div>
+                
+                <button class="form-button" onclick="runUntilN()">Jalankan Simulasi</button>
+            </div>
+        </div>
+        
+        <!-- Modal Tambah NPC -->
+        <div class="modal" id="addNPCModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 style="color: var(--secondary);">Tambah NPC Baru</h2>
+                    <button class="close-modal" onclick="closeModal('addNPCModal')">&times;</button>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nama NPC</label>
+                    <input type="text" class="form-input" id="npcNameInput" placeholder="Masukkan nama NPC">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Deskripsi Interaksi</label>
+                    <input type="text" class="form-input" id="npcInteractionInput" placeholder="Contoh: Memberi semangat">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Efek ke Statistik</label>
+                    <div style="display: flex; gap: 10px;">
+                        <select class="form-select" id="npcEffectType" style="flex: 1;">
+                            <option value="energy">Energi</option>
+                            <option value="money">Uang</option>
+                            <option value="knowledge">Pengetahuan</option>
+                            <option value="health">Kesehatan</option>
+                        </select>
+                        <input type="number" class="form-input" id="npcEffectValue" placeholder="Nilai" style="flex: 1;">
+                    </div>
+                </div>
+                
+                <button class="form-button" onclick="addCustomNPC()">Tambah NPC</button>
+            </div>
+        </div>
+        
+        <!-- Modal Riwayat dengan Fitur Hapus -->
+        <div class="modal" id="historyModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 style="color: var(--secondary);">Riwayat Hari</h2>
+                    <button class="close-modal" onclick="closeModal('historyModal')">&times;</button>
+                </div>
+                
+                <div class="history-controls">
+                    <button class="history-control-button delete" onclick="deleteAllHistory()">
+                        <i class="fas fa-trash"></i> Hapus Semua Riwayat
+                    </button>
+                    <button class="history-control-button" onclick="showHistory()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+                
+                <div id="historyContent" class="log-content" style="max-height: 400px;">
+                    <!-- Riwayat akan ditampilkan di sini -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Daftar NPC -->
+        <div class="modal" id="npcsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 style="color: var(--secondary);">Daftar NPC</h2>
+                    <button class="close-modal" onclick="closeModal('npcsModal')">&times;</button>
+                </div>
+                
+                <div id="npcsList" class="npc-list">
+                    <!-- NPC akan ditampilkan di sini -->
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Life Simulator - Web Edition | Berbasis pada program C Life Simulator</p>
+            <p>Game ini dapat diakses oleh siapa saja dengan membuka link ini di browser</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Data game
+        let game = {
+            player: null,
+            day: 1,
+            isAlive: true,
+            activities: [],
+            npcs: [
+                { name: "Ayah", relationship: 70, interaction: "Memberi uang dan nasihat" },
+                { name: "Ibu", relationship: 80, interaction: "Memasak dan menyemangati" },
+                { name: "Adik", relationship: 60, interaction: "Menghibur dan mengajak main" },
+                { name: "Kakak", relationship: 65, interaction: "Memberi nasihat hidup" },
+                { name: "Guru", relationship: 30, interaction: "Memberikan latihan soal" },
+                { name: "Teman", relationship: 50, interaction: "Mengajak berbicara santai" },
+                { name: "Tetangga", relationship: 40, interaction: "Memberi makanan" },
+                { name: "Sahabat", relationship: 55, interaction: "Memberi dukungan besar" },
+                { name: "Atasan", relationship: 30, interaction: "Memberi bonus ringan" },
+                { name: "Crush", relationship: 25, interaction: "Memberi senyuman" }
+            ],
+            history: [],
+            todayEvents: [],
+            backupStats: null // Untuk menyimpan backup statistik sebelum hari dijalankan
+        };
+
+        // Aktivitas berdasarkan pekerjaan
+        const jobActivities = {
+            "Pelajar": ["Belajar", "Olahraga", "Istirahat", "Makan", "Jalan-jalan"],
+            "Mahasiswa": ["Belajar", "Olahraga", "Istirahat", "Makan", "Jalan-jalan"],
+            "Guru": ["Mengajar", "Olahraga", "Istirahat", "Makan", "Jalan-jalan"],
+            "Chef": ["Memasak", "Olahraga", "Istirahat", "Makan", "Jalan-jalan"],
+            "Pilot": ["Menerbangkan Pesawat", "Olahraga", "Istirahat", "Makan", "Jalan-jalan"],
+            "Dokter": ["Praktek", "Olahraga", "Istirahat", "Makan", "Jalan-jalan"],
+            "Polisi": ["Patroli", "Olahraga", "Istirahat", "Makan", "Jalan-jalan"]
+        };
+
+        // Fungsi utilitas
+        function openModal(modalId) {
+            if (!game.player && modalId !== 'createCharacterModal') {
+                alert("Silakan buat karakter terlebih dahulu!");
+                return;
+            }
+            
+            if (!game.isAlive && !['createCharacterModal'].includes(modalId)) {
+                alert("Karakter sudah mati. Hanya bisa membuat karakter baru.");
+                return;
+            }
+            
+            document.getElementById(modalId).style.display = 'flex';
+            
+            // Inisialisasi modal jika perlu
+            if (modalId === 'addActivityModal') {
+                populateActivitySelect();
+                populateNPCSelect();
+            } else if (modalId === 'npcsModal') {
+                displayNPCs();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Fungsi untuk membuat karakter
+        function createCharacter() {
+            const name = document.getElementById('charNameInput').value.trim();
+            const age = parseInt(document.getElementById('charAgeInput').value);
+            const job = document.getElementById('charJobSelect').value;
+            
+            // Validasi nama
+            if (!name) {
+                showError('characterError', 'Nama karakter harus diisi!');
+                return;
+            }
+            
+            // Validasi umur berdasarkan pekerjaan
+            let isValidAge = true;
+            let errorMsg = '';
+            
+            switch(job) {
+                case 'Pelajar':
+                    isValidAge = age >= 6 && age <= 18;
+                    errorMsg = 'Umur untuk Pelajar harus antara 6-18 tahun';
+                    break;
+                case 'Mahasiswa':
+                    isValidAge = age >= 17 && age <= 25;
+                    errorMsg = 'Umur untuk Mahasiswa harus antara 17-25 tahun';
+                    break;
+                case 'Guru':
+                    isValidAge = age >= 23;
+                    errorMsg = 'Umur untuk Guru minimal 23 tahun';
+                    break;
+                case 'Chef':
+                    isValidAge = age >= 18;
+                    errorMsg = 'Umur untuk Chef minimal 18 tahun';
+                    break;
+                case 'Pilot':
+                    isValidAge = age >= 22;
+                    errorMsg = 'Umur untuk Pilot minimal 22 tahun';
+                    break;
+                case 'Dokter':
+                    isValidAge = age >= 25;
+                    errorMsg = 'Umur untuk Dokter minimal 25 tahun';
+                    break;
+                case 'Polisi':
+                    isValidAge = age >= 18;
+                    errorMsg = 'Umur untuk Polisi minimal 18 tahun';
+                    break;
+            }
+            
+            if (!isValidAge) {
+                showError('characterError', errorMsg);
+                return;
+            }
+            
+            // Buat karakter
+            game.player = {
+                name: name,
+                age: age,
+                job: job,
+                energy: 70,
+                money: 50,
+                knowledge: 40,
+                health: 100
+            };
+            
+            game.day = 1;
+            game.isAlive = true;
+            game.activities = [];
+            game.todayEvents = [];
+            game.backupStats = null;
+            
+            // Tampilkan karakter
+            updateCharacterDisplay();
+            updateDayCounter();
+            
+            // Reset form
+            document.getElementById('charNameInput').value = '';
+            document.getElementById('charAgeInput').value = '20';
+            
+            // Tampilkan notifikasi
+            addLogEntry(`Karakter "${name}" berhasil dibuat! Pekerjaan: ${job}, Umur: ${age}`);
+            
+            // Tutup modal
+            closeModal('createCharacterModal');
+        }
+
+        // Fungsi untuk menampilkan karakter
+        function showCharacter() {
+            if (!game.player) {
+                alert("Belum ada karakter. Buat karakter terlebih dahulu!");
+                return;
+            }
+            
+            updateCharacterDisplay();
+        }
+
+        // Fungsi untuk mengupdate tampilan karakter
+        function updateCharacterDisplay() {
+            if (!game.player) {
+                document.getElementById('characterEmpty').style.display = 'block';
+                document.getElementById('characterInfo').style.display = 'none';
+                document.getElementById('characterStatus').className = 'alert alert-warning';
+                document.getElementById('characterStatus').innerHTML = 'Tidak Aktif';
+                return;
+            }
+            
+            document.getElementById('characterEmpty').style.display = 'none';
+            document.getElementById('characterInfo').style.display = 'block';
+            
+            // Update informasi karakter
+            document.getElementById('charName').textContent = game.player.name;
+            document.getElementById('charAge').textContent = game.player.age;
+            document.getElementById('charJob').textContent = game.player.job;
+            document.getElementById('charStatus').textContent = game.isAlive ? 'Hidup' : 'Meninggal';
+            
+            // Update statistik
+            document.getElementById('statEnergy').textContent = game.player.energy;
+            document.getElementById('statMoney').textContent = game.player.money;
+            document.getElementById('statKnowledge').textContent = game.player.knowledge;
+            document.getElementById('statHealth').textContent = game.player.health;
+            
+            // Update status
+            if (game.isAlive) {
+                document.getElementById('characterStatus').className = 'alert alert-success';
+                document.getElementById('characterStatus').innerHTML = 'Aktif';
+            } else {
+                document.getElementById('characterStatus').className = 'alert alert-danger';
+                document.getElementById('characterStatus').innerHTML = 'Meninggal';
+            }
+        }
+
+        // Fungsi untuk mengisi pilihan aktivitas berdasarkan pekerjaan
+        function populateActivitySelect() {
+            if (!game.player) return;
+            
+            const select = document.getElementById('activitySelect');
+            select.innerHTML = '';
+            
+            const activities = jobActivities[game.player.job] || jobActivities["Pelajar"];
+            
+            activities.forEach(activity => {
+                const option = document.createElement('option');
+                option.value = activity;
+                option.textContent = activity;
+                select.appendChild(option);
+            });
+        }
+
+        // Fungsi untuk mengisi pilihan NPC
+        function populateNPCSelect() {
+            const select = document.getElementById('npcSelect');
+            select.innerHTML = '';
+            
+            // Tambah opsi default
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Pilih NPC untuk interaksi...';
+            select.appendChild(defaultOption);
+            
+            // Tambah NPC dari daftar
+            game.npcs.forEach(npc => {
+                const option = document.createElement('option');
+                option.value = npc.name;
+                option.textContent = `${npc.name} (Hubungan: ${npc.relationship})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Fungsi untuk menambah aktivitas
+        function addActivity() {
+            if (!game.player) return;
+            if (!game.isAlive) {
+                alert("Karakter sudah mati. Tidak bisa menambah aktivitas.");
+                return;
+            }
+            
+            const activitySelect = document.getElementById('activitySelect');
+            const npcSelect = document.getElementById('npcSelect');
+            
+            let activityName;
+            
+            // Prioritaskan interaksi dengan NPC jika dipilih
+            if (npcSelect.value) {
+                const npcName = npcSelect.value;
+                const npc = game.npcs.find(n => n.name === npcName);
+                
+                if (npc) {
+                    activityName = `Interaksi dengan ${npcName}`;
+                    
+                    // Simpan informasi NPC untuk digunakan nanti
+                    activityName += `|NPC:${npcName}`;
+                }
+            } else if (activitySelect.value) {
+                activityName = activitySelect.value;
+            } else {
+                showError('activityError', 'Pilih aktivitas atau NPC untuk interaksi!');
+                return;
+            }
+            
+            // Tambah ke daftar aktivitas
+            game.activities.push(activityName);
+            
+            // Update tampilan
+            updateActivitiesDisplay();
+            
+            // Reset form
+            activitySelect.selectedIndex = 0;
+            npcSelect.selectedIndex = 0;
+            
+            // Tambah log
+            addLogEntry(`Aktivitas "${activityName.split('|')[0]}" ditambahkan ke hari ini.`);
+            
+            // Tutup modal
+            closeModal('addActivityModal');
+        }
+
+        // Fungsi untuk mengupdate tampilan aktivitas
+        function updateActivitiesDisplay() {
+            const container = document.getElementById('todaysActivities');
+            
+            if (game.activities.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">Belum ada aktivitas untuk hari ini</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            game.activities.forEach((activity, index) => {
+                const activityName = activity.split('|')[0];
+                
+                const div = document.createElement('div');
+                div.className = 'activity-item';
+                
+                div.innerHTML = `
+                    <div class="activity-name">${activityName}</div>
+                    <button class="activity-remove" onclick="removeActivity(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Fungsi untuk menghapus aktivitas
+        function removeActivity(index) {
+            if (index >= 0 && index < game.activities.length) {
+                const removed = game.activities.splice(index, 1)[0];
+                addLogEntry(`Aktivitas "${removed.split('|')[0]}" dihapus dari daftar.`);
+                updateActivitiesDisplay();
+            }
+        }
+
+        // Fungsi untuk menjalankan satu hari
+        function runOneDay() {
+            if (!game.player) {
+                alert("Buat karakter terlebih dahulu!");
+                return;
+            }
+            
+            if (!game.isAlive) {
+                alert("Karakter sudah mati. Simulasi selesai.");
+                return;
+            }
+            
+            // Simpan backup statistik sebelum menjalankan hari
+            saveBackupStats();
+            
+            // Tambah aktivitas harian otomatis jika belum ada
+            ensureDailyActivities();
+            
+            // Tambah kemungkinan kunjungan NPC
+            randomNPCVisit();
+            
+            // Cek dukungan NPC jika diperlukan
+            autoNPCSupportIfNeeded();
+            
+            // Generate event acak
+            const event = getRandomEvent();
+            game.todayEvents.push(event.text);
+            
+            // Log hari dimulai
+            addLogEntry(`=== HARI ${game.day} DIMULAI ===`);
+            addLogEntry(`Peristiwa: ${event.text}`);
+            
+            // Jalankan setiap aktivitas
+            let activitiesText = "";
+            
+            game.activities.forEach(activity => {
+                const activityName = activity.split('|')[0];
+                activitiesText += activityName + ", ";
+                
+                // Terapkan efek aktivitas
+                if (activity.includes('|NPC:')) {
+                    const npcName = activity.split('|NPC:')[1];
+                    interactWithNPC(npcName);
+                } else {
+                    applyActivity(activityName);
+                }
+                
+                // Cek apakah karakter masih hidup
+                if (!game.isAlive) {
+                    addLogEntry(`Karakter meninggal saat melakukan "${activityName}"!`);
+                    return;
+                }
+            });
+            
+            // Simpan ke riwayat
+            if (game.isAlive) {
+                game.history.push({
+                    day: game.day,
+                    event: event.text,
+                    activities: activitiesText,
+                    energy: game.player.energy,
+                    money: game.player.money,
+                    knowledge: game.player.knowledge,
+                    health: game.player.health
+                });
+            }
+            
+            // Update tampilan
+            updateCharacterDisplay();
+            
+            // Tampilkan ringkasan hari
+            if (event.isMeteor) {
+                addLogEntry("KARAKTER TEWAS KARENA KEAKTUHAN METEOR!");
+                game.isAlive = false;
+            } else if (!game.isAlive) {
+                addLogEntry("KARAKTER MENINGGAL DUNIA!");
+            } else {
+                addLogEntry(`Hari ${game.day} selesai. Statistik akhir:`);
+                addLogEntry(`- Energi: ${game.player.energy}`);
+                addLogEntry(`- Uang: ${game.player.money}`);
+                addLogEntry(`- Pengetahuan: ${game.player.knowledge}`);
+                addLogEntry(`- Kesehatan: ${game.player.health}`);
+                game.day++;
+                updateDayCounter();
+            }
+            
+            // Reset aktivitas untuk hari berikutnya
+            game.activities = [];
+            game.backupStats = null; // Hapus backup setelah hari selesai
+            updateActivitiesDisplay();
+        }
+
+        // Simpan backup statistik sebelum menjalankan hari
+        function saveBackupStats() {
+            if (!game.player) return;
+            
+            game.backupStats = {
+                day: game.day,
+                energy: game.player.energy,
+                money: game.player.money,
+                knowledge: game.player.knowledge,
+                health: game.player.health,
+                activities: [...game.activities]
+            };
+        }
+
+        // Fungsi untuk menjalankan N hari
+        function runUntilN() {
+            if (!game.player) {
+                alert("Buat karakter terlebih dahulu!");
+                closeModal('runNDaysModal');
+                return;
+            }
+            
+            if (!game.isAlive) {
+                alert("Karakter sudah mati. Simulasi selesai.");
+                closeModal('runNDaysModal');
+                return;
+            }
+            
+            const targetDay = parseInt(document.getElementById('targetDayInput').value);
+            
+            if (targetDay < game.day) {
+                alert(`Hari saat ini adalah ${game.day}. Masukkan hari yang lebih besar.`);
+                return;
+            }
+            
+            addLogEntry(`Menjalankan simulasi dari hari ${game.day} sampai hari ${targetDay}...`);
+            
+            while (game.day <= targetDay && game.isAlive) {
+                runOneDay();
+            }
+            
+            closeModal('runNDaysModal');
+        }
+
+        // Fungsi untuk menampilkan riwayat dengan fitur hapus
+        function showHistory() {
+            if (!game.player) {
+                alert("Belum ada karakter. Buat karakter terlebih dahulu!");
+                return;
+            }
+            
+            const content = document.getElementById('historyContent');
+            
+            if (game.history.length === 0) {
+                content.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">Belum ada riwayat</div>';
+            } else {
+                content.innerHTML = '';
+                
+                // Sort riwayat berdasarkan hari (terbaru pertama)
+                const sortedHistory = [...game.history].sort((a, b) => b.day - a.day);
+                
+                sortedHistory.forEach((record, index) => {
+                    const originalIndex = game.history.findIndex(h => h.day === record.day);
+                    
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+                    
+                    div.innerHTML = `
+                        <button class="history-delete-btn" onclick="deleteHistoryDay(${originalIndex})" title="Hapus hari ini">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="log-day">Hari ${record.day}</div>
+                        <div class="log-event">${record.event}</div>
+                        <div class="log-activities">Aktivitas: ${record.activities}</div>
+                        <div style="margin-top: 5px; font-size: 0.9rem;">
+                            Status: Energi ${record.energy}, Uang ${record.money}, 
+                            Pengetahuan ${record.knowledge}, Kesehatan ${record.health}
+                        </div>
+                    `;
+                    
+                    content.appendChild(div);
+                });
+            }
+            
+            openModal('historyModal');
+        }
+
+        // Fungsi untuk menghapus hari tertentu dari riwayat
+        function deleteHistoryDay(index) {
+            if (index < 0 || index >= game.history.length) return;
+            
+            const deletedDay = game.history[index];
+            
+            if (confirm(`Hapus riwayat Hari ${deletedDay.day}?`)) {
+                // Hapus dari riwayat
+                game.history.splice(index, 1);
+                
+                // Jika hari yang dihapus adalah hari terakhir, kurangi hari saat ini
+                if (deletedDay.day === game.day - 1) {
+                    game.day = deletedDay.day;
+                    updateDayCounter();
+                    
+                    // Kembalikan statistik ke sebelum hari tersebut
+                    // Cari riwayat hari sebelumnya
+                    const prevDay = game.history.filter(h => h.day < deletedDay.day).sort((a, b) => b.day - a.day)[0];
+                    
+                    if (prevDay) {
+                        // Kembalikan statistik ke hari sebelumnya
+                        game.player.energy = prevDay.energy;
+                        game.player.money = prevDay.money;
+                        game.player.knowledge = prevDay.knowledge;
+                        game.player.health = prevDay.health;
+                    } else {
+                        // Jika tidak ada riwayat sebelumnya, kembali ke statistik awal
+                        game.player.energy = 70;
+                        game.player.money = 50;
+                        game.player.knowledge = 40;
+                        game.player.health = 100;
+                    }
+                    
+                    updateCharacterDisplay();
+                    addLogEntry(`Riwayat Hari ${deletedDay.day} dihapus. Statistik dikembalikan.`);
+                } else {
+                    addLogEntry(`Riwayat Hari ${deletedDay.day} dihapus.`);
+                }
+                
+                // Refresh tampilan riwayat
+                showHistory();
+            }
+        }
+
+        // Fungsi untuk menghapus semua riwayat
+        function deleteAllHistory() {
+            if (game.history.length === 0) {
+                alert("Tidak ada riwayat untuk dihapus.");
+                return;
+            }
+            
+            if (confirm("Hapus SEMUA riwayat? Tindakan ini tidak dapat dibatalkan!")) {
+                game.history = [];
+                
+                // Reset hari ke 1
+                game.day = 1;
+                updateDayCounter();
+                
+                // Reset statistik ke awal
+                if (game.player) {
+                    game.player.energy = 70;
+                    game.player.money = 50;
+                    game.player.knowledge = 40;
+                    game.player.health = 100;
+                    updateCharacterDisplay();
+                }
+                
+                addLogEntry("Semua riwayat telah dihapus. Game direset ke awal.");
+                
+                // Tutup modal riwayat
+                closeModal('historyModal');
+            }
+        }
+
+        // Fungsi untuk mereset hari ini (mengembalikan ke sebelum hari dijalankan)
+        function resetToday() {
+            if (!game.player) {
+                alert("Belum ada karakter. Buat karakter terlebih dahulu!");
+                return;
+            }
+            
+            // Cek apakah ada backup statistik (hari sedang berjalan)
+            if (game.backupStats) {
+                // Kembalikan ke statistik sebelum hari dijalankan
+                game.player.energy = game.backupStats.energy;
+                game.player.money = game.backupStats.money;
+                game.player.knowledge = game.backupStats.knowledge;
+                game.player.health = game.backupStats.health;
+                
+                // Kembalikan aktivitas
+                game.activities = [...game.backupStats.activities];
+                
+                // Hapus backup
+                game.backupStats = null;
+                
+                updateCharacterDisplay();
+                updateActivitiesDisplay();
+                
+                // Hapus riwayat hari ini jika sudah tersimpan
+                const todayIndex = game.history.findIndex(h => h.day === game.day);
+                if (todayIndex !== -1) {
+                    game.history.splice(todayIndex, 1);
+                }
+                
+                addLogEntry(`Hari ${game.day} direset. Statistik dan aktivitas dikembalikan.`);
+                
+            } else if (game.activities.length > 0) {
+                // Reset hanya aktivitas hari ini (jika hari belum dijalankan)
+                if (confirm("Reset aktivitas hari ini?")) {
+                    game.activities = [];
+                    updateActivitiesDisplay();
+                    addLogEntry("Aktivitas hari ini direset.");
+                }
+            } else {
+                alert("Tidak ada aktivitas hari ini untuk direset.");
+            }
+        }
+
+        // Fungsi untuk menambah NPC kustom
+        function addCustomNPC() {
+            if (!game.player) {
+                alert("Buat karakter terlebih dahulu!");
+                closeModal('addNPCModal');
+                return;
+            }
+            
+            if (!game.isAlive) {
+                alert("Karakter sudah mati. Tidak bisa menambah NPC baru.");
+                closeModal('addNPCModal');
+                return;
+            }
+            
+            const name = document.getElementById('npcNameInput').value.trim();
+            const interaction = document.getElementById('npcInteractionInput').value.trim();
+            const effectType = document.getElementById('npcEffectType').value;
+            const effectValue = parseInt(document.getElementById('npcEffectValue').value) || 0;
+            
+            if (!name) {
+                alert("Nama NPC harus diisi!");
+                return;
+            }
+            
+            // Cek apakah NPC sudah ada
+            if (game.npcs.find(npc => npc.name === name)) {
+                alert(`NPC dengan nama "${name}" sudah ada!`);
+                return;
+            }
+            
+            // Tambah NPC baru
+            game.npcs.push({
+                name: name,
+                relationship: 50, // Default relationship
+                interaction: interaction,
+                effectType: effectType,
+                effectValue: effectValue
+            });
+            
+            // Reset form
+            document.getElementById('npcNameInput').value = '';
+            document.getElementById('npcInteractionInput').value = '';
+            document.getElementById('npcEffectValue').value = '';
+            
+            addLogEntry(`NPC "${name}" berhasil ditambahkan!`);
+            
+            closeModal('addNPCModal');
+        }
+
+        // Fungsi untuk menampilkan daftar NPC
+        function viewNPCs() {
+            if (!game.player) {
+                alert("Buat karakter terlebih dahulu!");
+                return;
+            }
+            
+            displayNPCs();
+            openModal('npcsModal');
+        }
+
+        function displayNPCs() {
+            const container = document.getElementById('npcsList');
+            container.innerHTML = '';
+            
+            game.npcs.forEach(npc => {
+                const div = document.createElement('div');
+                div.className = 'npc-item';
+                
+                div.innerHTML = `
+                    <div class="npc-name">${npc.name}</div>
+                    <div class="npc-relationship">Hubungan: ${npc.relationship}</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">
+                        ${npc.interaction || 'Interaksi standar'}
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Fungsi untuk menambahkan entri log
+        function addLogEntry(text) {
+            const logContainer = document.getElementById('eventLog');
+            
+            // Cek jika log kosong
+            if (logContainer.children.length === 1 && logContainer.children[0].textContent.includes('Belum ada log')) {
+                logContainer.innerHTML = '';
+            }
+            
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[Hari ${game.day}] ${text}`;
+            
+            logContainer.appendChild(entry);
+            
+            // Scroll ke bawah
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('eventLog').innerHTML = 
+                '<div style="text-align: center; color: #999; padding: 20px;">Belum ada log aktivitas</div>';
+        }
+
+        function updateDayCounter() {
+            document.getElementById('dayCounter').textContent = `Hari: ${game.day}`;
+        }
+
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        // Fungsi game logic
+        function ensureDailyActivities() {
+            const requiredActivities = ["Makan", "Istirahat"];
+            
+            requiredActivities.forEach(activity => {
+                if (!game.activities.some(a => a.includes(activity))) {
+                    game.activities.push(activity);
+                }
+            });
+            
+            // Aktivitas berdasarkan pekerjaan
+            const jobAct = getRandomJobActivity();
+            if (!game.activities.some(a => a.includes(jobAct))) {
+                game.activities.push(jobAct);
+            }
+            
+            updateActivitiesDisplay();
+        }
+
+        function getRandomJobActivity() {
+            if (!game.player) return "Olahraga";
+            
+            const activities = jobActivities[game.player.job] || ["Olahraga", "Istirahat", "Makan"];
+            const randomIndex = Math.floor(Math.random() * activities.length);
+            return activities[randomIndex];
+        }
+
+        function randomNPCVisit() {
+            const chance = Math.random() * 100;
+            
+            if (chance < 40 && game.npcs.length > 0) {
+                const randomIndex = Math.floor(Math.random() * game.npcs.length);
+                const npc = game.npcs[randomIndex];
+                
+                addLogEntry(`${npc.name} datang mengunjungimu hari ini!`);
+                
+                // Tambah aktivitas interaksi
+                if (!game.activities.some(a => a.includes(`Interaksi dengan ${npc.name}`))) {
+                    game.activities.push(`Interaksi dengan ${npc.name}|NPC:${npc.name}`);
+                    updateActivitiesDisplay();
+                }
+            }
+        }
+
+        function autoNPCSupportIfNeeded() {
+            // Cek jika energi rendah, tambah interaksi dengan Ibu
+            if (game.player.energy < 20) {
+                const ibu = game.npcs.find(n => n.name === "Ibu");
+                if (ibu && !game.activities.some(a => a.includes(`Interaksi dengan ${ibu.name}`))) {
+                    game.activities.push(`Interaksi dengan ${ibu.name}|NPC:${ibu.name}`);
+                }
+            }
+            
+            // Cek jika kesehatan rendah, tambah interaksi dengan Ibu
+            if (game.player.health < 30) {
+                const ibu = game.npcs.find(n => n.name === "Ibu");
+                if (ibu && !game.activities.some(a => a.includes(`Interaksi dengan ${ibu.name}`))) {
+                    game.activities.push(`Interaksi dengan ${ibu.name}|NPC:${ibu.name}`);
+                }
+            }
+            
+            // Cek jika uang rendah, tambah interaksi dengan Ayah
+            if (game.player.money < 25) {
+                const ayah = game.npcs.find(n => n.name === "Ayah");
+                if (ayah && !game.activities.some(a => a.includes(`Interaksi dengan ${ayah.name}`))) {
+                    game.activities.push(`Interaksi dengan ${ayah.name}|NPC:${ayah.name}`);
+                }
+            }
+            
+            updateActivitiesDisplay();
+        }
+
+        function getRandomEvent() {
+            const r = Math.random() * 100;
+            
+            if (r < 5) {
+                return { 
+                    text: "[!] Kejatuhan meteor besar, kamu tidak selamat.", 
+                    isMeteor: true 
+                };
+            } else if (r < 25) {
+                return { 
+                    text: "[~] Cuaca hujan, energi berkurang 5.", 
+                    effect: { energy: -5 } 
+                };
+            } else if (r < 45) {
+                return { 
+                    text: "[$] Ketemu diskon makanan, hemat uang 10.", 
+                    effect: { money: 10 } 
+                };
+            } else if (r < 65) {
+                return { 
+                    text: "[#] Macet panjang, energi terpakai 8.", 
+                    effect: { energy: -8 } 
+                };
+            } else if (r < 85) {
+                return { 
+                    text: "[*] Dapat motivasi dari teman, pengetahuan +5.", 
+                    effect: { knowledge: 5 } 
+                };
+            } else {
+                return { 
+                    text: "[!] Dapat email tugas mendadak, energi -3.", 
+                    effect: { energy: -3 } 
+                };
+            }
+        }
+
+        function applyActivity(activityName) {
+            const player = game.player;
+            
+            switch(activityName) {
+                case "Belajar":
+                    player.knowledge += 5;
+                    player.energy -= 5;
+                    break;
+                case "Bekerja Part-time":
+                    player.money += 20;
+                    player.energy -= 10;
+                    break;
+                case "Olahraga":
+                    player.health += 5;
+                    player.energy -= 5;
+                    break;
+                case "Istirahat":
+                    player.energy += 10;
+                    if (player.energy > 100) player.energy = 100;
+                    break;
+                case "Memasak":
+                case "Masak":
+                    player.money += 15;
+                    player.energy -= 7;
+                    break;
+                case "Menerbangkan Pesawat":
+                case "Terbang":
+                    player.money += 30;
+                    player.energy -= 15;
+                    break;
+                case "Mengajar":
+                    player.money += 25;
+                    player.knowledge += 2;
+                    player.energy -= 8;
+                    break;
+                case "Patroli":
+                    player.money += 20;
+                    player.health -= 5;
+                    player.energy -= 10;
+                    break;
+                case "Praktek":
+                    player.money += 35;
+                    player.knowledge += 3;
+                    player.energy -= 12;
+                    break;
+                case "Makan":
+                    player.energy += 15;
+                    player.money -= 5;
+                    if (player.energy > 100) player.energy = 100;
+                    break;
+                case "Jalan-jalan":
+                    player.health += 5;
+                    player.energy -= 5;
+                    player.money -= 5;
+                    break;
+                case "Belanja Bahan":
+                    player.money -= 5;
+                    player.energy -= 4;
+                    break;
+                case "Briefing":
+                    player.knowledge += 1;
+                    break;
+                case "Mempersiapkan Materi":
+                    player.knowledge += 3;
+                    player.energy -= 3;
+                    break;
+                case "Cek Pasien":
+                    player.knowledge += 2;
+                    player.energy -= 4;
+                    break;
+                case "Laporan":
+                    player.energy -= 5;
+                    player.knowledge += 1;
+                    break;
+            }
+            
+            // Batasi nilai statistik
+            if (player.energy > 100) player.energy = 100;
+            if (player.health > 100) player.health = 100;
+            if (player.knowledge < 0) player.knowledge = 0;
+            if (player.money < 0) player.money = 0;
+            
+            // Cek kesehatan
+            if (player.health <= 0) {
+                player.health = 0;
+                game.isAlive = false;
+            }
+        }
+
+        function interactWithNPC(npcName) {
+            const npc = game.npcs.find(n => n.name === npcName);
+            if (!npc) return;
+            
+            const player = game.player;
+            
+            // Tambah relationship
+            npc.relationship += 5;
+            if (npc.relationship > 100) npc.relationship = 100;
+            
+            // Efek berdasarkan NPC
+            let effectText = "";
+            
+            if (npc.name === "Ayah") {
+                player.money += 25;
+                effectText = "Ayah memberi uang. Uang +25.";
+            } else if (npc.name === "Ibu") {
+                player.health += 8;
+                player.energy += 8;
+                effectText = "Ibu memasakkan makanan dan menyemangati. Kesehatan +8, Energi +8.";
+            } else if (npc.name === "Adik") {
+                player.energy += 5;
+                effectText = "Adik menghiburmu. Energi +5.";
+            } else if (npc.name === "Kakak") {
+                player.knowledge += 4;
+                effectText = "Kakak memberi nasihat hidup. Pengetahuan +4.";
+            } else if (npc.name === "Guru") {
+                player.knowledge += 6;
+                effectText = "Guru memberikan latihan soal. Pengetahuan +6.";
+            } else if (npc.name === "Teman") {
+                player.energy += 5;
+                effectText = "Teman mengajak berbicara santai. Energi +5.";
+            } else if (npc.name === "Tetangga") {
+                player.health += 4;
+                player.energy += 3;
+                effectText = "Tetangga memberi makanan. Kesehatan +4, Energi +3.";
+            } else if (npc.name === "Sahabat") {
+                player.energy += 7;
+                player.health += 4;
+                effectText = "Sahabat memberimu dukungan besar. Energi +7, Kesehatan +4.";
+            } else if (npc.name === "Atasan") {
+                player.money += 10;
+                effectText = "Atasan memberi bonus ringan. Uang +10.";
+            } else if (npc.name === "Crush") {
+                player.energy += 6;
+                player.health += 3;
+                effectText = "Crush tersenyum padamu. Energi +6, Kesehatan +3.";
+            } else if (npc.effectType) {
+                // NPC kustom
+                player[npc.effectType] += npc.effectValue;
+                effectText = `${npc.interaction || 'Berinteraksi'}. ${npc.effectType} ${npc.effectValue >= 0 ? '+' : ''}${npc.effectValue}.`;
+            } else {
+                player.energy += 5;
+                effectText = `${npc.name} memberi semangat. Energi +5.`;
+            }
+            
+            // Batasi nilai statistik
+            if (player.energy > 100) player.energy = 100;
+            if (player.health > 100) player.health = 100;
+            
+            addLogEntry(`Interaksi dengan ${npc.name}: ${effectText} Hubungan sekarang: ${npc.relationship}`);
+        }
+
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update persyaratan pekerjaan saat pekerjaan berubah
+            document.getElementById('charJobSelect').addEventListener('change', function() {
+                const job = this.value;
+                let requirements = "";
+                
+                switch(job) {
+                    case 'Pelajar': requirements = "Umur 6-18 tahun"; break;
+                    case 'Mahasiswa': requirements = "Umur 17-25 tahun"; break;
+                    case 'Guru': requirements = "Minimal 23 tahun"; break;
+                    case 'Chef': requirements = "Minimal 18 tahun"; break;
+                    case 'Pilot': requirements = "Minimal 22 tahun"; break;
+                    case 'Dokter': requirements = "Minimal 25 tahun"; break;
+                    case 'Polisi': requirements = "Minimal 18 tahun"; break;
+                }
+                
+                document.getElementById('jobRequirements').textContent = requirements;
+            });
+            
+            // Trigger event change untuk menginisialisasi
+            document.getElementById('charJobSelect').dispatchEvent(new Event('change'));
+            
+            // Tampilkan informasi awal
+            updateCharacterDisplay();
+            updateDayCounter();
+        });
+    </script>
+</body>
+</html>
