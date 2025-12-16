@@ -1005,18 +1005,17 @@
                 }
             ],
             events: [
-                { text: "☄️ IMPAK METEOR! Tidak selamat", effect: "death" },
-                { text: "🌧️ Hujan deras, energi berkurang", effect: "energy:-5" },
-                { text: "💰 DISKON MEGA! Hemat uang", effect: "money:+10" },
-                { text: "🚗 KECELAKAAN! Energi habis", effect: "energy:-8" },
-                { text: "🌟 MOTIVASI BOM! Semangat naik", effect: "energy:+5,knowledge:+2" },
+                { text: "☄️ Terkena METEOR! Tidak selamat", effect: "death" },
+                { text: "🌧️ Hujan deras, energi berkurang", effect: "energy:-10" },
+                { text: "💰 DAPAT DISKON MEGA! Hemat uang", effect: "money:+10" },
+                { text: "🚗 KECELAKAAN! Energi habis", effect: "energy:-20,health:-20" },
+                { text: "🌟 MOTIVASI MENINGKAT! Semangat naik", effect: "energy:+5,knowledge:+2" },
                 { text: "📧 TUGAS MENDADAK! Tetap semangat", effect: "knowledge:+3,energy:-3" },
-                { text: "🎁 REJEKI NOMBOK! Hadiah tak terduga", effect: "money:+15,energy:+5" },
-                { text: "🤒 FLU MUSIMAN! Istirahat dulu", effect: "health:-5,energy:-3" },
-                { text: "💡 EUREKA MOMENT! Ide brilian", effect: "knowledge:+5" },
+                { text: "🎁 DAPAT REJEKI NOMPLOK! Hadiah tak terduga", effect: "money:+15,energy:+5" },
+                { text: "🤒 FLU MUSIMAN! Butuh istirahat", effect: "health:-5,energy:-3" },
                 { text: "🏆 JUARA LOMBA! Prestasi gemilang", effect: "money:+25,knowledge:+3" },
                 { text: "🌞 CUACA CERAH! Mood membaik", effect: "energy:+3,health:+2" },
-                { text: "📱 TEMAN MENGINVIT! Hangout seru", effect: "energy:+4,money:-10" },
+                { text: "📱 TEMAN MENGAJAK HANGOUT", effect: "energy:+4,money:-10" },
                 { text: "🏥 CHECKUP GRATIS! Kesehatan terjaga", effect: "health:+8" },
                 { text: "💼 PROYEK BARU! Penghasilan tambahan", effect: "money:+20,energy:-6" },
                 { text: "📚 BUKU BARU! Pengetahuan bertambah", effect: "knowledge:+4" }
@@ -1699,16 +1698,36 @@
                 }
             }
             
-            // Dukungan otomatis NPC
-            if (gameData.character.energy < 20 && gameData.activitiesToday.length < gameData.maxActivitiesPerDay) {
-                const ibu = gameData.npcs.find(n => n.name === 'Ibu');
-                if (ibu) {
-                    const activity = `Interaksi: ${ibu.name}`;
-                    if (!gameData.activitiesToday.includes(activity)) {
-                        gameData.activitiesToday.push(activity);
-                    }
-                }
-            }
+  // Dukungan otomatis NPC (mirror dari autoNPCSupportIfNeeded di C)
+if (gameData.activitiesToday.length < gameData.maxActivitiesPerDay) {
+    const ibu  = gameData.npcs.find(n => n.name === 'Ibu');
+    const ayah = gameData.npcs.find(n => n.name === 'Ayah');
+
+    // Energy rendah → Ibu datang
+    if (gameData.character.energy < 20 && ibu) {
+        const act = `Interaksi: ${ibu.name}`;
+        if (!gameData.activitiesToday.includes(act)) {
+            gameData.activitiesToday.push(act);
+        }
+    }
+
+    // Health rendah → Ibu juga datang
+    if (gameData.character.health < 30 && ibu) {
+        const act = `Interaksi: ${ibu.name}`;
+        if (!gameData.activitiesToday.includes(act)) {
+            gameData.activitiesToday.push(act);
+        }
+    }
+
+    // Uang sedikit → Ayah bantu
+    if (gameData.character.money < 25 && ayah) {
+        const act = `Interaksi: ${ayah.name}`;
+        if (!gameData.activitiesToday.includes(act)) {
+            gameData.activitiesToday.push(act);
+        }
+    }
+}
+
             
             // Cek kondisi karakter
             if (gameData.character.health <= 0) {
@@ -1872,31 +1891,21 @@
             showModal('history-modal');
         }
 
-        // Fungsi untuk menghapus riwayat hari tertentu
-        function deleteHistoryDay(day) {
-            if (confirm(`Hapus riwayat Hari ${day}?`)) {
-                const index = gameData.history.findIndex(record => record.day === day);
-                if (index !== -1) {
-                    gameData.history.splice(index, 1);
-                    showNotification(`🗑️ Riwayat Hari ${day} telah dihapus!`, 'info');
-                    showHistory(); // Refresh tampilan riwayat
-                }
-            }
-        }
+function deleteLastHistoryDay() {
+    if (gameData.history.length === 0) {
+        showNotification('Tidak ada riwayat untuk dihapus!', 'info');
+        return;
+    }
 
-        // Fungsi untuk menghapus semua riwayat
-        function confirmClearHistory() {
-            if (gameData.history.length === 0) {
-                showNotification('Tidak ada riwayat untuk dihapus!', 'info');
-                return;
-            }
-            
-            if (confirm(`Hapus SEMUA riwayat (${gameData.history.length} hari)?`)) {
-                gameData.history = [];
-                showNotification('🗑️ Semua riwayat telah dihapus!', 'success');
-                closeModal('history-modal');
-            }
-        }
+    const lastIndex = gameData.history.length - 1;
+    const lastDay = gameData.history[lastIndex].day;
+
+    if (confirm(`Hapus riwayat Hari ${lastDay}?`)) {
+        gameData.history.pop(); // hapus elemen terakhir
+        showNotification(`🗑️ Riwayat Hari ${lastDay} telah dihapus!`, 'info');
+        showHistory(); // Refresh tampilan riwayat
+    }
+}
 
         // Modal Profil
         function showProfile() {
@@ -2082,4 +2091,5 @@
         document.addEventListener('DOMContentLoaded', initGame);
     </script>
 </body>
+
 </html>
