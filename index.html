@@ -1891,20 +1891,30 @@ if (gameData.activitiesToday.length < gameData.maxActivitiesPerDay) {
             showModal('history-modal');
         }
 
-function deleteLastHistoryDay() {
-    if (gameData.history.length === 0) {
-        showNotification('Tidak ada riwayat untuk dihapus!', 'info');
-        return;
-    }
+/ Fungsi untuk menghapus riwayat hari tertentu
+function deleteHistoryDay(day) {
+if (confirm(`Hapus riwayat Hari ${day}?`)) {
+const index = gameData.history.findIndex(record => record.day === day);
+if (index !== -1) {
+gameData.history.splice(index, 1);
+showNotification(`🗑️ Riwayat Hari ${day} telah dihapus!`, 'info');
+showHistory(); // Refresh tampilan riwayat
+}
+}
+}
 
-    const lastIndex = gameData.history.length - 1;
-    const lastDay = gameData.history[lastIndex].day;
+// Fungsi untuk menghapus semua riwayat
+function confirmClearHistory() {
+if (gameData.history.length === 0) {
+showNotification('Tidak ada riwayat untuk dihapus!', 'info');
+return;
+}
 
-    if (confirm(`Hapus riwayat Hari ${lastDay}?`)) {
-        gameData.history.pop(); // hapus elemen terakhir
-        showNotification(`🗑️ Riwayat Hari ${lastDay} telah dihapus!`, 'info');
-        showHistory(); // Refresh tampilan riwayat
-    }
+if (confirm(`Hapus SEMUA riwayat (${gameData.history.length} hari)?`)) {
+gameData.history = [];
+showNotification('🗑️ Semua riwayat telah dihapus!', 'success');
+closeModal('history-modal');
+}
 }
 
         // Modal Profil
@@ -2093,3 +2103,4 @@ function deleteLastHistoryDay() {
 </body>
 
 </html>
+
